@@ -38,22 +38,17 @@ start:
 	mov	ax,#SETUPSEG
 	mov	es,ax
 
-! Print some inane message
+! Print the message "Now we are in SETUP"
 
 	mov	ah,#0x03		! read cursor pos
 	xor	bh,bh
 	int	0x10
-	
+
 	mov	cx,#26
 	mov	bx,#0x0007		! page 0, attribute 7 (normal)
 	mov	bp,#msg1
 	mov	ax,#0x1301		! write string, move cursor
 	int	0x10
-
-	mov	ah,#0x03	! read cursor pos
-	xor	bh,bh
-	int	0x10		! save it in known place, con_init fetches
-	mov	[0],dx		! it from 0x90000.
 
 ! Get memory size (extended mem, kB)
 
@@ -100,6 +95,29 @@ start:
 	mov	cx,#0x10
 	rep
 	movsb
+
+! Print some message about hardware
+
+	mov	ax,#INITSEG
+	mov	es,ax
+	mov	ah,#0x03		! read cursor pos
+	xor	bh,bh
+	int	0x10
+
+	mov	cx,#4
+	mov	bx,#0x0007		! page 0, attribute 7 (normal)
+	mov	bp,#0x0002
+	mov	ax,#0x1301		! write string, move cursor
+	int	0x10
+
+! Read cursor pos and save
+
+	mov	ax,#INITSEG
+	mov	ds,ax
+	mov	ah,#0x03	! read cursor pos
+	xor	bh,bh
+	int	0x10		! save it in known place, con_init fetches
+	mov	[0],dx		! it from 0x90000.
 
 ! Check that there IS a hd1 :-)
 
