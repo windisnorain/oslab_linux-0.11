@@ -35,10 +35,26 @@ start:
 
 	mov	ax,#INITSEG	! this is done in bootsect already, but...
 	mov	ds,ax
+	mov	ax,#SETUPSEG
+	mov	es,ax
+
+! Print some inane message
+
+	mov	ah,#0x03		! read cursor pos
+	xor	bh,bh
+	int	0x10
+	
+	mov	cx,#26
+	mov	bx,#0x0007		! page 0, attribute 7 (normal)
+	mov	bp,#msg1
+	mov	ax,#0x1301		! write string, move cursor
+	int	0x10
+
 	mov	ah,#0x03	! read cursor pos
 	xor	bh,bh
 	int	0x10		! save it in known place, con_init fetches
 	mov	[0],dx		! it from 0x90000.
+
 ! Get memory size (extended mem, kB)
 
 	mov	ah,#0x88
@@ -199,6 +215,10 @@ empty_8042:
 	test	al,#2		! is input buffer full?
 	jnz	empty_8042	! yes - loop
 	ret
+msg1:
+	.byte 13,10
+	.ascii "Now we are in SETUP."
+	.byte 13,10,13,10
 
 gdt:
 	.word	0,0,0,0		! dummy
